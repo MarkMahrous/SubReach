@@ -132,18 +132,42 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
               snippet: youtube.SubscriptionSnippet(
                 resourceId: youtube.ResourceId(
                   kind: 'youtube#channel',
-                  channelId:
-                      channelId!, // Ensure channelId is set correctly here
+                  channelId: channelId!,
                 ),
               ),
             ),
-            ['snippet'], // Pass the part as a list
+            ['snippet'],
           );
-          //do the post request to the server
-          print("Subscribed to channel successfully.");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Subscribed to the channel!")),
+
+          // Call the POST request to your server
+          final token =
+              'YOUR_FIREBASE_ID_TOKEN'; // Replace this with the actual token you have.
+          final email = 'USER_EMAIL'; // Replace with the user's email.
+
+          final response = await http.post(
+            Uri.parse('http://192.168.0.101:3000/api/users/subscripe'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: json.encode({'email': email}),
           );
+
+          if (response.statusCode == 200) {
+            final responseData = json.decode(response.body);
+            final points = responseData['points'];
+
+            print("Subscribed to channel successfully. Points: $points");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text("Subscribed to the channel! Points: $points")),
+            );
+          } else {
+            print("Failed to increment points: ${response.body}");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Failed to increment points.")),
+            );
+          }
         }
       }
     } catch (e) {
