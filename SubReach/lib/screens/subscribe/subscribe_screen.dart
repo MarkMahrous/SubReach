@@ -23,7 +23,6 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
   int _currentIndex = 0;
   bool _isAutoPlayEnabled = false;
   bool _isInitializing = true;
-  GoogleSignInAuthentication? auth ;
 
   @override
   void initState() {
@@ -63,9 +62,9 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
         return; // Exit the function if sign-in fails.
       }
 
-      auth= await googleUser.authentication;
+      final GoogleSignInAuthentication auth = await googleUser.authentication;
 
-      if (auth?.accessToken == null) {
+      if (auth.accessToken == null) {
         setState(() {
           _isInitializing = false;
         });
@@ -83,7 +82,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
         AccessCredentials(
           AccessToken(
             'Bearer',
-            auth?.accessToken!?? '',
+            auth.accessToken!,
             DateTime.now().add(Duration(hours: 1)).toUtc(), // Convert to UTC
           ),
           null, // Leave refresh token as null if unavailable.
@@ -113,20 +112,6 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
       print("YouTube API is not initialized yet.");
       return;
     }
-   final url = Uri.parse('http://10.0.2.2:3000/api/users/like');
-          final response = await http.post(
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-              'authorization': auth?.accessToken ?? ''
-            },
-            body: jsonEncode({'videoId': 'sf'}),
-          );
-          print("response"+ response.body);
-          if (response.statusCode != 200) {
-            print("Failed to like video. Status code: ${response.statusCode}");
-            return;
-          }
 
     try {
       final videoId =
@@ -154,7 +139,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
             ),
             ['snippet'], // Pass the part as a list
           );
-       
+          //do the post request to the server
           print("Subscribed to channel successfully.");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Subscribed to the channel!")),
