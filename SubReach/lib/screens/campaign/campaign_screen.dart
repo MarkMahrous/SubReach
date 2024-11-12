@@ -51,6 +51,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
       body: jsonEncode({
         'email': email,
         'url': _urlController.text,
+        'minus_points': 10,
       }),
     );
 

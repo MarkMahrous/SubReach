@@ -8,7 +8,7 @@ export default async function handler(
 
   switch (method) {
     case "POST":
-      const { email, url } = req.body;
+      const { email, url, minus_points } = req.body;
 
       if (!email || !url) {
         return res
@@ -19,11 +19,14 @@ export default async function handler(
       // Print email and url to the console
       console.log("Email:", email);
       console.log("URL:", url);
+      console.log("Minus Points:", minus_points);
 
       // Respond with a success message
       return res
         .status(200)
-        .json({ message: "Email and URL received successfully" });
+        .json({
+          message: "Email and URL received successfully and Points are minused",
+        });
 
     default:
       res.setHeader("Allow", ["POST"]);
