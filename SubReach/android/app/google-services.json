@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1056614011337",
+    "project_id": "subreach-c98fd",
+    "storage_bucket": "subreach-c98fd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1056614011337:android:b743c3816b9b00c6001818",
+        "android_client_info": {
+          "package_name": "com.example.subreach"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1056614011337-3ihde3qjl8lv03sm76r45ud3f50t5ipu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.subreach",
+            "certificate_hash": "eab33731e1dc0ffdfe1331aaf8b17a6b09eda161"
+          }
+        },
+        {
+          "client_id": "1056614011337-ig98ch6rj5l24mvg0aebv768n2fphmmi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjGlcW601UjrDaIBn0AUIBjtnwUykT8n8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1056614011337-ig98ch6rj5l24mvg0aebv768n2fphmmi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1056614011337-oda9rqlodhohcnbh46npcbdjc7332ouj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.subreach"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

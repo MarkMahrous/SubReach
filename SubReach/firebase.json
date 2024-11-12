@@ -1,0 +1,22 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "subreach-c98fd",
+          "appId": "1:1056614011337:android:b743c3816b9b00c6001818",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "subreach-c98fd",
+          "configurations": {
+            "android": "1:1056614011337:android:b743c3816b9b00c6001818",
+            "ios": "1:1056614011337:ios:1bb8e7c054917b06001818"
+          }
+        }
+      }
+    }
+  }
+}
