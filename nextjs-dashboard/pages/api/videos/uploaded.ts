@@ -9,7 +9,14 @@ export default async function handler(
   switch (method) {
     case "GET":
       // Return an empty array for now
-      return res.status(200).json([]);
+      return res
+        .status(200)
+        .json([
+          "https://www.youtube.com/watch?v=LWskcYMNhes",
+          "https://www.youtube.com/watch?v=ioTBIpKCUpM",
+          "https://www.youtube.com/watch?v=-g4vvXmE0YI",
+          "https://www.youtube.com/watch?v=G28SocqOwOE",
+        ]);
 
     default:
       res.setHeader("Allow", ["GET"]);

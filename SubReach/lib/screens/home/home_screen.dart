@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:subreach/screens/campaign/campaign_screen.dart';
 import 'package:subreach/screens/like/like_screen.dart';
 import 'package:subreach/screens/points/points_screen.dart';
@@ -17,6 +20,32 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
+  List<String> videoUrls = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchVideoUrls(); // Fetch video URLs when the screen initializes
+  }
+
+  Future<void> fetchVideoUrls() async {
+    final url = Uri.parse('http://192.168.0.101:3000/api/videos/uploaded');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        setState(() {
+          // Decode the response and update the video URLs
+          videoUrls = List<String>.from(json.decode(response.body));
+        });
+      } else {
+        print(
+            'Failed to fetch video URLs. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching video URLs: $e');
+    }
+  }
 
   void _selectScreen(index) {
     setState(() {
@@ -37,31 +66,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (currentIndex) {
       case 0:
-        activeScreen = const SubscribeScreen(
-          videoUrls: [
-            "https://www.youtube.com/watch?v=ioTBIpKCUpM",
-            "https://www.youtube.com/watch?v=-g4vvXmE0YI",
-            "https://www.youtube.com/watch?v=G28SocqOwOE",
-          ],
-        );
+        activeScreen = SubscribeScreen(videoUrls: videoUrls);
         break;
       case 1:
-        activeScreen = const LikeScreen(
-          videoUrls: [
-            "https://www.youtube.com/watch?v=ioTBIpKCUpM",
-            "https://www.youtube.com/watch?v=-g4vvXmE0YI",
-            "https://www.youtube.com/watch?v=G28SocqOwOE",
-          ],
-        );
+        activeScreen = LikeScreen(videoUrls: videoUrls);
         break;
       case 2:
-        activeScreen = const ViewScreen(
-          videoUrls: [
-            "https://www.youtube.com/watch?v=ioTBIpKCUpM",
-            "https://www.youtube.com/watch?v=-g4vvXmE0YI",
-            "https://www.youtube.com/watch?v=G28SocqOwOE",
-          ],
-        );
+        activeScreen = ViewScreen(videoUrls: videoUrls);
         break;
       case 3:
         activeScreen = const CampaignScreen();
@@ -79,7 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: AppDrawer(
         onSelectItem: _closeDrawer,
       ),
-      body: activeScreen,
+      body: videoUrls.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : activeScreen,
       bottomNavigationBar: BottomNavigationBar(
         onTap: _selectScreen,
         currentIndex: currentIndex,
