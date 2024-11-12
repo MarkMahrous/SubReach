@@ -118,11 +118,39 @@ class _LikeScreenState extends State<LikeScreen> {
           YoutubePlayer.convertUrlToId(widget.videoUrls[_currentIndex]);
       if (videoId != null) {
         await _youtubeApi!.videos.rate(videoId, "like");
-
         print("Video liked successfully.");
+
+        // Send the POST request to the server
+        final url = Uri.parse('http://192.168.0.101:3000/api/users/like');
+
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':
+                'Bearer ${auth?.accessToken}', // Add the access token
+          },
+          body: jsonEncode({
+            'email':
+                'user@example.com', // Replace with the actual email if available
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+          print("Response from server: $responseData");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Points incremented successfully!")),
+          );
+        } else {
+          print("Failed to increment points: ${response.body}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to update points on the server.")),
+          );
+        }
       }
     } catch (e) {
-      print("Error liking video: $e");
+      print("Error liking video or sending request: $e");
     }
   }
 
