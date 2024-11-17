@@ -41,7 +41,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
   }
 
   Future<void> _createCampaign() async {
-    const url = 'http://192.168.0.101:3000/api/videos/campaign';
+    const url = 'http://192.168.0.199:3000/api/videos/campaign';
     final email =
         'user@example.com'; // Replace with actual user email if available
 

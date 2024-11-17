@@ -16,12 +16,6 @@ export default async function handler(
           .json({ error: "Missing required fields: email and url" });
       }
 
-      // Print email and url to the console
-      console.log("Email:", email);
-      console.log("URL:", url);
-      console.log("Minus Points:", minus_points);
-
-      // Respond with a success message
       return res
         .status(200)
         .json({

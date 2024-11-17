@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "@/lib/mongoose";
-import User from "@/models/Users";
+import {User} from '@/models/Models';
 import { auth } from "@/lib/firebaseAdmin";
 
 export default async function handler(

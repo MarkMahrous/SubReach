@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "@/lib/mongoose";
-import User from "@/models/Users";
+import {User} from "@/models/Models";
 import { auth } from "@/lib/firebaseAdmin";
 
 export default async function handler(
@@ -11,10 +11,12 @@ export default async function handler(
     return res.status(405).end(); // Method Not Allowed
   }
 
-  const token = req.headers["authorization"];
+  const token = req.headers["authorization"]?.replace("Bearer ", "");
   if (!token) {
     return res.status(401).json({ error: "Authorization token is required" });
   }
+  console.log("Token:", token);
+
 
   const { email } = req.body;
 

@@ -23,6 +23,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
   int _currentIndex = 0;
   bool _isAutoPlayEnabled = false;
   bool _isInitializing = true;
+  GoogleSignInAuthentication? auth;
 
   @override
   void initState() {
@@ -62,9 +63,9 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
         return; // Exit the function if sign-in fails.
       }
 
-      final GoogleSignInAuthentication auth = await googleUser.authentication;
+      auth = await googleUser.authentication;
 
-      if (auth.accessToken == null) {
+      if (auth?.accessToken == null) {
         setState(() {
           _isInitializing = false;
         });
@@ -81,8 +82,8 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
         http.Client(),
         AccessCredentials(
           AccessToken(
-            'Bearer',
-            auth.accessToken!,
+            'Bearer ',
+            auth?.accessToken!?? '',
             DateTime.now().add(Duration(hours: 1)).toUtc(), // Convert to UTC
           ),
           null, // Leave refresh token as null if unavailable.
@@ -140,15 +141,14 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
           );
 
           // Call the POST request to your server
-          final token =
-              'YOUR_FIREBASE_ID_TOKEN'; // Replace this with the actual token you have.
           final email = 'USER_EMAIL'; // Replace with the user's email.
 
           final response = await http.post(
-            Uri.parse('http://192.168.0.101:3000/api/users/subscripe'),
+            Uri.parse('http://192.168.0.199:3000/api/users/subscripe'),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token',
+              'Authorization':
+                  'Bearer ${auth?.accessToken}', // Add the access token
             },
             body: json.encode({'email': email}),
           );

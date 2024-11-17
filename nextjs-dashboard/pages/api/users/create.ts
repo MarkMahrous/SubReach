@@ -1,6 +1,6 @@
 import { connectToDatabase } from '@/lib/mongoose';
 import { NextApiRequest, NextApiResponse } from 'next';
-import User from '@/models/Users';
+import {User} from '@/models/Models';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { method } = req;
