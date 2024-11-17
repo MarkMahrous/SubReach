@@ -121,8 +121,8 @@ class _LikeScreenState extends State<LikeScreen> {
         print("Video liked successfully.");
 
         // Send the POST request to the server
-        final url = Uri.parse('http://192.168.0.199:3000/api/users/like');
-        // final url = Uri.parse('http://192.168.0.199:3000/api/users/like');
+        final url = Uri.parse('http://192.168.0.101:3000/api/users/like');
+        // final url = Uri.parse('http://192.168.0.101:3000/api/users/like');
 
         final response = await http.post(
           url,

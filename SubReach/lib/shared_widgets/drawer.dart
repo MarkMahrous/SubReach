@@ -17,7 +17,7 @@ class AppDrawer extends StatelessWidget {
 
   Future<int> fetchUserPoints(String email) async {
     final url =
-        Uri.parse('http://192.168.0.199:3000/api/users/points?email=$email');
+        Uri.parse('http://192.168.0.101:3000/api/users/points?email=$email');
 
     try {
       final response = await http.get(url);

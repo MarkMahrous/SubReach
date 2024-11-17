@@ -82,8 +82,8 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
         http.Client(),
         AccessCredentials(
           AccessToken(
-            'Bearer ',
-            auth?.accessToken!?? '',
+            'Bearer',
+            auth?.accessToken! ?? '',
             DateTime.now().add(Duration(hours: 1)).toUtc(), // Convert to UTC
           ),
           null, // Leave refresh token as null if unavailable.
@@ -144,7 +144,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
           final email = 'USER_EMAIL'; // Replace with the user's email.
 
           final response = await http.post(
-            Uri.parse('http://192.168.0.199:3000/api/users/subscripe'),
+            Uri.parse('http://192.168.0.101:3000/api/users/subscripe'),
             headers: {
               'Content-Type': 'application/json',
               'Authorization':
