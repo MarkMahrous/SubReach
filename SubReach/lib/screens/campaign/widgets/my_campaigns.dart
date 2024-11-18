@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:subreach/screens/campaign/widgets/add_campaign_button.dart';
 import 'package:subreach/theme.dart';
 
 class MyCampaigns extends StatefulWidget {

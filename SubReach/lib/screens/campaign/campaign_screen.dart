@@ -17,21 +17,61 @@ class _CampaignScreenState extends State<CampaignScreen> {
   String activeBody = "MyCampaigns";
   Widget activeWidget = MyCampaigns();
   String url = "";
+  final TextEditingController _urlController = TextEditingController();
 
   void showPopUp(String body) {
-    activeBody = body;
-
-    // setState(() {
-    //   if (body == "MyCampaigns") {
-    //     activeWidget = MyCampaigns();
-    //   } else if (body == "View") {
-    //     activeWidget = ViewCampaign(url: url);
-    //   } else if (body == "Like") {
-    //     activeWidget = LikeCampaign(url: url);
-    //   } else {
-    //     activeWidget = SubscribeCampaign(url: url);
-    //   }
-    // });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add your video'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _urlController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter your YouTube video link here',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'How to get link: open your video on YT -> share button -> copy link',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(
+                  () {
+                    url = _urlController.text;
+                    if (body == "View") {
+                      activeWidget = ViewCampaign(url: url);
+                    } else if (body == "Subscribe") {
+                      activeWidget = SubscribeCampaign(url: url);
+                    } else {
+                      activeWidget = LikeCampaign(url: url);
+                    }
+                    activeBody = body;
+                  },
+                );
+                Navigator.of(context).pop();
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -48,5 +88,11 @@ class _CampaignScreenState extends State<CampaignScreen> {
             )
           : null,
     );
+  }
+
+  @override
+  void dispose() {
+    _urlController.dispose();
+    super.dispose();
   }
 }
