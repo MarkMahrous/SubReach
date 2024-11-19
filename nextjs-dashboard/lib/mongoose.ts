@@ -2,7 +2,7 @@ import { Campaign, User, Video } from '@/models/Models';
 import mongoose from 'mongoose';
 import { faker } from '@faker-js/faker';
 import { randomInt } from 'crypto';
-const MONGODB_URI = 'mongodb://localhost:27017';
+const MONGODB_URI = 'mongodb://admin:newpassword@139.84.235.142:27017/admin';
 
 if (!MONGODB_URI) {
     throw new Error('Please define the MONGODB_URI environment variable inside .env.local');

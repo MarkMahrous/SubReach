@@ -13,7 +13,6 @@ export default async function handler(
     // Connect to the database
     await connectToDatabase();
     //return all users
-    // await createDemoData();
 
     const type = req.query.type;
 

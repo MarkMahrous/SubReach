@@ -38,7 +38,9 @@
     "scripts/seed.js",
     "next-env.d.ts",
     "global.d.ts",
-    "src/**/*"
+    "src/**/*",
+    "pages/404.js",
+    "pages/_500.js"
   ],
   "exclude": [
     "node_modules"

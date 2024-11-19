@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { compare } from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getUserByEmail } from '@/lib/data'; // Adjust the import based on your project
+import { createDemoData } from '@/lib/mongoose';
 
 const SECRET_KEY = process.env.JWT_SECRET_KEY || 'your_secret_key'; // Use an env variable for your secret
 
@@ -15,6 +16,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const user = await getUserByEmail(email);
+    // await createDemoData();
+
     if (!user) 
       return res.status(401).json({ message: 'Invalid credentials' });
 
@@ -29,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       SECRET_KEY,
       { expiresIn: '24h' } // Token expiration
     );
-
+    
     return res.status(200).json({ token });
   } catch (error) {
     console.error(error);
