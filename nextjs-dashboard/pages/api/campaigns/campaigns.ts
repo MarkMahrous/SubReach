@@ -18,7 +18,7 @@ export default async function handler(
         const { type } = req.query;
         const filter = type ? { type } : {};
 
-        const campaigns = await Campaign.find(filter).populate("owner");
+        const campaigns = await Campaign.find(filter);
         return res.status(200).json(campaigns);
       } catch (error) {
         console.error("Error fetching campaigns:", error);

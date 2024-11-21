@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import 'package:subreach/screens/home/home_screen.dart';
 import 'package:subreach/theme.dart';
 
-final secureStorage = FlutterSecureStorage();
+// final secureStorage = FlutterSecureStorage();
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -48,11 +48,6 @@ class AuthScreen extends StatelessWidget {
       );
 
       if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-
-        // Save user ID to secure storage
-        await secureStorage.write(key: 'userId', value: data['_id']);
-        // User creation successful, navigate to the home screen
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );

@@ -94,8 +94,10 @@ export default async function handler(
           return res.status(500).json({ error: "Failed to fetch user" });
         }
       } else {
+        const { email } = req.query;
+        const filter = email ? { email } : {};
         try {
-          const users = await User.find({});
+          const users = await User.find(filter);
           return res.status(200).json(users);
         } catch (error) {
           console.error("Error fetching users:", error);
