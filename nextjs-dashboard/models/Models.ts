@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import bcrypt from 'bcrypt';
+import mongoose, { Schema, Document } from "mongoose";
+import bcrypt from "bcrypt";
 
 // Video Schema
 interface IVideo extends Document {
@@ -14,27 +14,32 @@ const VideoSchema: Schema = new Schema({
   description: { type: String },
 });
 
-export const Video = mongoose.models.Video || mongoose.model<IVideo>('Video', VideoSchema);
-
-
+export const Video =
+  mongoose.models.Video || mongoose.model<IVideo>("Video", VideoSchema);
 
 interface ICampaign extends Document {
   name: string;
   budget: number;
   owner: string;
-  type: 'Subscription Channel' | 'Like Video' | 'View Video';
-  video: { type: Schema.Types.ObjectId, ref: 'Video' };
+  type: "Subscribe" | "Like" | "View";
+  video: string; // Video ID
 }
 
 const CampaignSchema: Schema = new Schema({
   name: { type: String, required: true },
   budget: { type: Number, required: true },
-  owner: { type: Schema.Types.ObjectId, ref: 'User' },
-  type: { type: String, enum: ['Subscription Channel', 'Like Video', 'View Video'], required: true },
-  video: { type: Schema.Types.ObjectId, ref: 'Video' },
+  owner: { type: Schema.Types.ObjectId, ref: "User" },
+  type: {
+    type: String,
+    enum: ["Subscribe", "Like", "View"],
+    required: true,
+  },
+  video: { type: String, required: true }, // Video ID
 });
 
-export const Campaign = mongoose.models.Campaign || mongoose.model<ICampaign>('Campaign', CampaignSchema);
+export const Campaign =
+  mongoose.models.Campaign ||
+  mongoose.model<ICampaign>("Campaign", CampaignSchema);
 
 // User Schema
 interface IUser extends Document {
@@ -42,28 +47,31 @@ interface IUser extends Document {
   email: string;
   password: string;
   points: number;
-  viewedCampaigns: [{ type: Schema.Types.ObjectId, ref: 'Campaign' }];
+  viewedCampaigns: [{ type: Schema.Types.ObjectId; ref: "Campaign" }];
+  createdCampaigns: [{ type: Schema.Types.ObjectId; ref: "Campaign" }];
 }
 
 const UserSchema: Schema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  points: { type: Number, default: 0 },
-  viewedCampaigns: [{ type: Schema.Types.ObjectId, ref: 'Campaign' }],
+  points: { type: Number, default: 5000 },
+  viewedCampaigns: [{ type: Schema.Types.ObjectId, ref: "Campaign" }],
+  createdCampaigns: [{ type: Schema.Types.ObjectId, ref: "Campaign" }],
 });
 
-UserSchema.pre<IUser>('save', function (next) {
-  // Check if the password field is modified before saving
-  if (!this.isModified('password')) {
-    return next();  // If the password is not modified, skip hashing
+UserSchema.pre<IUser>("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
   }
 
-  // Hash the password before saving
-  this.password = bcrypt.hashSync(this.password, 10);
-
-  // Proceed with the save operation
-  next();
+  try {
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  } catch (error) {
+    next();
+  }
 });
 
-export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+export const User =
+  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:subreach/screens/auth_screen/auth_screen.dart';
 import 'package:subreach/theme.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -14,9 +15,19 @@ class PageBar extends StatelessWidget implements PreferredSizeWidget {
     return FirebaseAuth.instance.currentUser?.email;
   }
 
-  Future<int> fetchUserPoints(String email) async {
-    final url =
-        Uri.parse('http://192.168.0.101:3000/api/users/points?email=$email');
+  Future<String?> getUserId() async {
+    final userId = await secureStorage.read(key: 'userId');
+    return userId;
+  }
+
+  Future<int> fetchUserPoints() async {
+    final id = await getUserId();
+    print('User ID: $id');
+    if (id == null) {
+      print('User ID not found');
+      return 0;
+    }
+    final url = Uri.parse('http://192.168.0.101:3000/api/users/create?id=$id');
 
     try {
       final response = await http.get(url);
@@ -24,6 +35,7 @@ class PageBar extends StatelessWidget implements PreferredSizeWidget {
       if (response.statusCode == 200) {
         // Parse the response body
         final data = jsonDecode(response.body);
+        print(data['points']);
         return data['points'] ?? 0; // Default to 0 if 'points' is not present
       } else {
         print(
@@ -59,7 +71,7 @@ class PageBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       actions: [
         FutureBuilder<int>(
-          future: email != null ? fetchUserPoints(email) : Future.value(0),
+          future: email != null ? fetchUserPoints() : Future.value(0),
           builder: (context, snapshot) {
             final points = snapshot.data ?? 0;
             return Row(

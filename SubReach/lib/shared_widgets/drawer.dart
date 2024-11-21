@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:subreach/screens/auth_screen/auth_screen.dart';
 import 'package:subreach/screens/buy_points/buy_points.dart';
 import 'package:subreach/theme.dart';
 
@@ -15,9 +17,19 @@ class AppDrawer extends StatelessWidget {
     return FirebaseAuth.instance.currentUser?.email;
   }
 
-  Future<int> fetchUserPoints(String email) async {
-    final url =
-        Uri.parse('http://192.168.0.101:3000/api/users/points?email=$email');
+  Future<String?> getUserId() async {
+    final userId = await secureStorage.read(key: 'userId');
+    return userId;
+  }
+
+  Future<int> fetchUserPoints() async {
+    final id = await getUserId();
+    print('User ID: $id');
+    if (id == null) {
+      print('User ID not found');
+      return 0;
+    }
+    final url = Uri.parse('http://192.168.0.101:3000/api/users/create?id=$id');
 
     try {
       final response = await http.get(url);
@@ -25,6 +37,7 @@ class AppDrawer extends StatelessWidget {
       if (response.statusCode == 200) {
         // Parse the response body
         final data = jsonDecode(response.body);
+        print(data['points']);
         return data['points'] ?? 0; // Default to 0 if 'points' is not present
       } else {
         print(
@@ -46,7 +59,7 @@ class AppDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           FutureBuilder<int>(
-            future: email != null ? fetchUserPoints(email) : Future.value(0),
+            future: email != null ? fetchUserPoints() : Future.value(0),
             builder: (context, snapshot) {
               final points = snapshot.data ?? 0;
 
@@ -141,6 +154,28 @@ class AppDrawer extends StatelessWidget {
               SystemNavigator.pop();
             },
           ),
+          //logout
+          ListTile(
+              leading: const Icon(Icons.logout, color: AppColor.black),
+              title: const Text('Logout'),
+              onTap: () async {
+                try {
+                  await FirebaseAuth.instance
+                      .signOut(); // Sign out from Firebase
+                  await GoogleSignIn().signOut(); // Sign out from GoogleSignIn
+                  // Use a delay to ensure the SnackBar is shown before navigating
+                  Future.delayed(const Duration(milliseconds: 500), () {
+                    // Navigate to the login screen if necessary
+                    Navigator.of(context).pushReplacementNamed('/auth-screen');
+                  });
+                } catch (e) {
+                  // Show an error SnackBar if something goes wrong
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error signing out: $e')),
+                  );
+                }
+              }),
         ],
       ),
     );

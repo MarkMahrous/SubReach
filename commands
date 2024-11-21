@@ -11,3 +11,11 @@ pm2 start npm --name "nextjs-app" -- start -H 0.0.0.0
 pm2 stop nextjs-app
 
 pm2 logs nextjs-app
+
+
+
+pnpm install
+npm run dev
+
+admin@gmail.com
+Admin123@
