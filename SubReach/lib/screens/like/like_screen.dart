@@ -303,6 +303,7 @@ class _LikeScreenState extends State<LikeScreen> {
           _isGettingpoints = false;
           _isTimerRunning = true;
           _remainingTime = 15; // Reset timer to 15 seconds
+          fetchedLikedCampaigns.removeAt(_currentIndex);
         });
         _startTimer();
       }
@@ -320,104 +321,143 @@ class _LikeScreenState extends State<LikeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return _isInitializing
-        ? Center(child: CircularProgressIndicator())
-        : fetchedLikedCampaigns.isEmpty
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : Container(
-                color: AppColor.white,
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // Show timer instead of video if the timer is running
-                      if (_isTimerRunning)
-                        Container(
-                          color: AppColor.white,
-                          height: 200,
-                          child: Center(
-                            child: Text(
-                              '$_remainingTime',
-                              style: const TextStyle(
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        YoutubePlayer(
-                          controller: _controller,
-                          showVideoProgressIndicator: true,
-                        ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+    return Stack(
+      children: [
+        _isInitializing
+            ? Center(child: CircularProgressIndicator())
+            : fetchedLikedCampaigns.isEmpty
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Container(
+                    color: AppColor.white,
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: SingleChildScrollView(
+                      child: Column(
                         children: [
-                          AppButton(
-                            action: _isTimerRunning ? null : _playNextVideo,
-                            text: "Next Video",
-                          ),
-                          const SizedBox(width: 10),
-                          AppButton(
-                            action: (_youtubeApi == null ||
-                                    _isInitializing ||
-                                    _isTimerRunning)
-                                ? null
-                                : () => _likeVideo(),
-                            text: "Like",
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Card(
-                        elevation: 3,
-                        color: AppColor.white,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  const Text(
-                                    "Auto Play",
-                                    style: TextStyle(fontSize: 16),
+                          if (_isTimerRunning)
+                            Container(
+                              color: AppColor.white,
+                              height: 200,
+                              child: Center(
+                                child: Text(
+                                  '$_remainingTime',
+                                  style: const TextStyle(
+                                    fontSize: 48,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  const SizedBox(width: 10),
-                                  Transform.scale(
-                                    scale: 0.8,
-                                    child: Switch(
-                                      value: _isAutoPlayEnabled,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _isAutoPlayEnabled = value;
-                                          _initializeYoutubeController(
-                                              fetchedLikedCampaigns[
-                                                  _currentIndex]['video']!);
-                                        });
-                                      },
-                                      activeColor: AppColor.primary,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                              const SizedBox(height: 10),
-                              const Text(
-                                "Like to YouTube videos.",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 16),
+                            )
+                          else
+                            YoutubePlayer(
+                              controller: _controller,
+                              showVideoProgressIndicator: true,
+                            ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AppButton(
+                                action: _isTimerRunning ? null : _playNextVideo,
+                                text: "Next Video",
+                              ),
+                              const SizedBox(width: 10),
+                              AppButton(
+                                action: (_youtubeApi == null ||
+                                        _isInitializing ||
+                                        _isTimerRunning)
+                                    ? null
+                                    : () => _likeVideo(),
+                                text: "Like",
                               ),
                             ],
                           ),
+                          const SizedBox(height: 20),
+                          Card(
+                            elevation: 3,
+                            color: AppColor.white,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      const Text(
+                                        "Auto Play",
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Transform.scale(
+                                        scale: 0.8,
+                                        child: Switch(
+                                          value: _isAutoPlayEnabled,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _isAutoPlayEnabled = value;
+                                              _initializeYoutubeController(
+                                                  fetchedLikedCampaigns[
+                                                      _currentIndex]['video']!);
+                                            });
+                                          },
+                                          activeColor: AppColor.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    "Like to YouTube videos.",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+        // Loader overlay
+        if (_isGettingpoints)
+          Positioned.fill(
+            child: Stack(
+              children: [
+                ModalBarrier(
+                  dismissible: false,
+                  color:
+                      const Color.fromARGB(24, 158, 158, 158).withOpacity(0.9),
+                ),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Container(
+                      height: 80,
+                      color: AppColor.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 16),
+                            CircularProgressIndicator(),
+                            const SizedBox(width: 16),
+                            const Text(
+                              "Adding points",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              );
+              ],
+            ),
+          ),
+      ],
+    );
   }
 }
