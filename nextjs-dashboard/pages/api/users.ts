@@ -25,8 +25,9 @@ export default async function handler(
   }
 
   // Connect to the database
-  // await connectToDatabase();
-  await createDemoData();
+  await connectToDatabase();
+  // await createDemoData();
+// 
   //return all users
   // const users = await User.find();
   // return res.status(200).json(users);

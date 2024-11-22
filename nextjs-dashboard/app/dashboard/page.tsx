@@ -1,11 +1,16 @@
-export const dynamic = 'force-dynamic';
+'use client';
+
 import { Card } from '@/app/ui/dashboard/cards';
 import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
 import { lusitana } from '@/app/ui/fonts';
-import { Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { RevenueChartSkeleton } from '@/app/ui/skeletons';
 import RevenueChart from '@/app/ui/dashboard/revenue-chart';
 import { LatestInvoice, Revenue } from '../lib/definitions';
+import { Skeleton } from '@mui/material';
+import Loading from './loading';
+
+export const dynamic = 'force-dynamic';
 
 interface DashboardData {
     totalUsers: number;
@@ -16,19 +21,25 @@ interface DashboardData {
     revenue: Revenue[];
 }
 
+export default function Page() {
+    const [dashboardData, setDashboardData] = useState<DashboardData>({
+        totalUsers: 0,
+        totalCampaigns: 0,
+        totalBudgets: 0,
+        totalUserPoints: 0,
+        responseUsers: [],
+        revenue: [],
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-export default async function Page() {
-
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
-    const getDashBoardData = async (): Promise<DashboardData | null> => {
+    const getDashBoardData = async () => {
         try {
-            const response = await fetch(`${apiUrl}/api/dashboard`, {
+            const response = await fetch(`/api/dashboard`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                // Enable caching if desired
                 cache: 'no-store', // Prevent caching for fresh data
             });
 
@@ -36,42 +47,55 @@ export default async function Page() {
                 throw new Error(`Error fetching data: ${response.statusText}`);
             }
 
-            return response.json();
-        } catch (error) {
-            console.error('Failed to fetch dashboard data:', error);
-            return null;
+            const data: DashboardData = await response.json();
+            return data
+        } catch (err) {
+            console.error('Failed to fetch dashboard data:', err);
+        } finally {
         }
     };
 
-    const dashboardData = await getDashBoardData();
+    useEffect(() => {
+        getDashBoardData().then((data: any) => {
+            setDashboardData(data);
+            setLoading(false);
+        }
+        );
 
-    if (!dashboardData) {
-        return <div>Failed to load dashboard data.</div>;
-    }
-
-
-    const { totalUsers, totalCampaigns, totalBudgets, totalUserPoints, responseUsers, revenue } = dashboardData;
-
+    }, [null]);
 
     return (
         <main>
             <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
                 Dashboard
             </h1>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <Card title="Total Users" value={totalUsers} type="customers" />
-                <Card title="Total Campaigns" value={totalCampaigns} type="invoices" />
-                <Card title="Total Budgets" value={totalBudgets} type="collected" />
-                <Card title="Total User Points" value={totalUserPoints} type="pending" />
-            </div>
-            <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-                <Suspense fallback={<RevenueChartSkeleton />}>
-                    <RevenueChart revenue={revenue} />
-                </Suspense>
-                <LatestInvoices latestInvoices={responseUsers} />
-            </div>
+
+            {/* Loading or Error State */}
+            {loading ? (
+                <Loading />
+            ) : error ? (
+                <div className="text-center mt-6 text-red-500">{error}</div>
+            ) : (
+                <>
+                    {/* Dashboard Cards */}
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                        <Card title="Total Users" value={dashboardData?.totalUsers} type="customers" />
+                        <Card title="Total Campaigns" value={dashboardData?.totalCampaigns} type="invoices" />
+                        <Card title="Total Budgets" value={dashboardData?.totalBudgets} type="collected" />
+                        <Card title="Total User Points" value={dashboardData?.totalUserPoints} type="pending" />
+                    </div>
+
+                    {/* Revenue Chart and Latest Invoices */}
+                    <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
+                        {dashboardData?.revenue.length ? (
+                            <RevenueChart revenue={dashboardData?.revenue} />
+                        ) : (
+                            <RevenueChartSkeleton />
+                        )}
+                        <LatestInvoices latestInvoices={dashboardData?.responseUsers} />
+                    </div>
+                </>
+            )}
         </main>
     );
 }
-
-

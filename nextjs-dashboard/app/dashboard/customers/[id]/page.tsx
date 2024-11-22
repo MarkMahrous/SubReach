@@ -1,51 +1,68 @@
 'use client';
+import * as React from 'react';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import CampaignsView from '@/app/ui/campaignsView';
+import SubscriptionCampaignsView from '@/app/ui/subscriptionCampaignsView';
+import LikeCampaignsView from '@/app/ui/likeCampaignsView';
+import InvoicesTable from '@/app/ui/invoices/table';
+import Loading from '../../loading';
+import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
+import Link from 'next/link';
+import EditInvoiceForm from '@/app/ui/invoices/edit-form';
 
-import { CustomerField, InvoiceForm } from '@/app/lib/definitions';
 import {
   CheckIcon,
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import { Button } from '@/app/ui/button';
 
-export default function EditInvoiceForm({
-  // invoice,
-  // customers,
-}: {
-  // invoice: InvoiceForm;
-  // customers: CustomerField[];
-}) {
+type CustomerPageProps = {
+  params: { id: string };
+};
+
+
+export default function Page({ params }: any) {
+  const { id } = params;
+  console.log(" id ", id);
+  // Subscription Channel', 'Like Video', 'View Video'
+  const [selectedView, setSelectedView] = React.useState('Subscription Channel');
+  const [loading, setLoading] = React.useState(true);
+  const getCampaignsData = async () => {
+    const response = await fetch(`/api/campaigns?type=${selectedView}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+
+    });
+    const data = await response.json();
+    return data;
+  };
+  interface Campaign {
+    _id: string;
+    owner: { email: string };
+    budget: number;
+    numberOfViews: number;
+    video?: { url: string; title: string };
+  }
+
+  const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
+  React.useEffect(() => {
+    setLoading(true);
+    getCampaignsData().then((data) => {
+      console.log(data);
+      setCampaigns(data);
+      setLoading(false);
+    });
+  }, [selectedView]);
+  // if (loading) {
+  //   return <Loading />
+  // }
   return (
     <form>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Customer Name */}
-        <div className="mb-4">
-          <label htmlFor="customer" className="mb-2 block text-sm font-medium">
-            Choose customer
-          </label>
-          <div className="relative">
-            <select
-              id="customer"
-              name="customerId"
-              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              // defaultValue={invoice.customer_id}
-            >
-              <option value="" disabled>
-                Select a customer
-              </option>
-              {/* {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name}
-                </option>
-              ))} */}
-            </select>
-            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-        </div>
-
-        {/* Invoice Amount */}
         <div className="mb-4">
           <label htmlFor="amount" className="mb-2 block text-sm font-medium">
             Choose an amount
@@ -111,7 +128,7 @@ export default function EditInvoiceForm({
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link
-          href="/dashboard/invoices"
+          href="/dashboard/customers"
           className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
         >
           Cancel
@@ -119,5 +136,6 @@ export default function EditInvoiceForm({
         <Button type="submit">Edit Invoice</Button>
       </div>
     </form>
+
   );
 }
