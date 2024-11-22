@@ -19,6 +19,16 @@ export default function CustomersTable({
   const [filteredCustomers, setFilteredCustomers] = useState<FormattedCustomersTable[]>(
     customers
   );
+  const deleteUser = async (userid: string) => {
+    const response = await fetch(`/api/users${userid}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await response.json();
+    return data;
+  };
 
   useEffect(() => {
     setFilteredCustomers(customers);
