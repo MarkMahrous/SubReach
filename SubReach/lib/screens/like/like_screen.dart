@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:subreach/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/youtube/v3.dart' as youtube;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import 'package:subreach/shared_widgets/app_button.dart';
@@ -24,6 +26,10 @@ class _LikeScreenState extends State<LikeScreen> {
   youtube.YouTubeApi? _youtubeApi;
   bool _isAutoPlayEnabled = false;
   bool _isInitializing = true;
+  bool _isGettingpoints = false;
+  bool _isTimerRunning = false; // Track if the timer is running
+  int _remainingTime = 15; // Remaining time for the countdown
+  Timer? _timer;
   GoogleSignInAuthentication? auth;
 
   List<Map<String, String>> fetchedLikedCampaigns = [];
@@ -33,6 +39,41 @@ class _LikeScreenState extends State<LikeScreen> {
   void initState() {
     super.initState();
     _initializeYoutubeApi();
+    _loadTimerState();
+  }
+
+  Future<void> _loadTimerState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedTime = prefs.getInt('remainingTime');
+    if (savedTime != null && savedTime > 0) {
+      setState(() {
+        _remainingTime = savedTime;
+        _isTimerRunning = true;
+      });
+      _startTimer();
+    }
+  }
+
+  Future<void> _saveTimerState(int time) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('remainingTime', time);
+  }
+
+  void _startTimer() {
+    _timer?.cancel(); // Cancel any existing timer
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_remainingTime > 0) {
+          _remainingTime--;
+          _saveTimerState(_remainingTime);
+        } else {
+          _timer?.cancel();
+          _isTimerRunning = false;
+          _saveTimerState(0); // Clear saved timer state
+          _playNextVideo();
+        }
+      });
+    });
   }
 
   String? getUserEmail() {
@@ -225,11 +266,16 @@ class _LikeScreenState extends State<LikeScreen> {
       setState(() {
         _currentIndex++;
         _controller.load(fetchedLikedCampaigns[_currentIndex]['video']!);
+        _isTimerRunning = false; // Stop timer for the next video
+        _saveTimerState(0); // Clear timer state
       });
     }
   }
 
   Future<void> _likeVideo() async {
+    setState(() {
+      _isGettingpoints = true;
+    });
     if (_youtubeApi == null) {
       print("YouTube API is not initialized yet.");
       return;
@@ -242,7 +288,7 @@ class _LikeScreenState extends State<LikeScreen> {
         print("Video liked successfully.");
 
         final userId = await getUserId();
-        final response = await http.patch(
+        await http.patch(
           Uri.parse('http://192.168.0.101:3000/api/users/create?id=$userId'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
@@ -251,6 +297,14 @@ class _LikeScreenState extends State<LikeScreen> {
                 ['campaignId'],
           }),
         );
+
+        // Start the timer after liking the video
+        setState(() {
+          _isGettingpoints = false;
+          _isTimerRunning = true;
+          _remainingTime = 15; // Reset timer to 15 seconds
+        });
+        _startTimer();
       }
     } catch (e) {
       print("Error liking video or sending request: $e");
@@ -260,6 +314,7 @@ class _LikeScreenState extends State<LikeScreen> {
   @override
   void dispose() {
     _controller.dispose();
+    _timer?.cancel(); // Cancel timer when screen is disposed
     super.dispose();
   }
 
@@ -269,10 +324,7 @@ class _LikeScreenState extends State<LikeScreen> {
         ? Center(child: CircularProgressIndicator())
         : fetchedLikedCampaigns.isEmpty
             ? Center(
-                child: Text(
-                  "No campaigns available.",
-                  style: TextStyle(fontSize: 18),
-                ),
+                child: CircularProgressIndicator(),
               )
             : Container(
                 color: AppColor.white,
@@ -281,21 +333,39 @@ class _LikeScreenState extends State<LikeScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      YoutubePlayer(
-                        controller: _controller,
-                        showVideoProgressIndicator: true,
-                      ),
+                      // Show timer instead of video if the timer is running
+                      if (_isTimerRunning)
+                        Container(
+                          color: AppColor.white,
+                          height: 200,
+                          child: Center(
+                            child: Text(
+                              '$_remainingTime',
+                              style: const TextStyle(
+                                fontSize: 48,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        YoutubePlayer(
+                          controller: _controller,
+                          showVideoProgressIndicator: true,
+                        ),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           AppButton(
-                            action: _playNextVideo,
+                            action: _isTimerRunning ? null : _playNextVideo,
                             text: "Next Video",
                           ),
                           const SizedBox(width: 10),
                           AppButton(
-                            action: (_youtubeApi == null || _isInitializing)
+                            action: (_youtubeApi == null ||
+                                    _isInitializing ||
+                                    _isTimerRunning)
                                 ? null
                                 : () => _likeVideo(),
                             text: "Like",
