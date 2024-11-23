@@ -9,19 +9,21 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/youtube/v3.dart' as youtube;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subreach/providers/points_provider.dart';
 
 import 'package:subreach/shared_widgets/app_button.dart';
 
-class LikeScreen extends StatefulWidget {
+class LikeScreen extends ConsumerStatefulWidget {
   const LikeScreen({super.key, required this.videoUrls});
 
   final List<String> videoUrls;
 
   @override
-  State<LikeScreen> createState() => _LikeScreenState();
+  ConsumerState<LikeScreen> createState() => _LikeScreenState();
 }
 
-class _LikeScreenState extends State<LikeScreen> {
+class _LikeScreenState extends ConsumerState<LikeScreen> {
   late YoutubePlayerController _controller;
   youtube.YouTubeApi? _youtubeApi;
   bool _isAutoPlayEnabled = false;
@@ -70,7 +72,6 @@ class _LikeScreenState extends State<LikeScreen> {
           _timer?.cancel();
           _isTimerRunning = false;
           _saveTimerState(0); // Clear saved timer state
-          _playNextVideo();
         }
       });
     });
@@ -304,6 +305,9 @@ class _LikeScreenState extends State<LikeScreen> {
           _isTimerRunning = true;
           _remainingTime = 15; // Reset timer to 15 seconds
           fetchedLikedCampaigns.removeAt(_currentIndex);
+          if (fetchedLikedCampaigns.isNotEmpty) {
+            _initializeYoutubeController(fetchedLikedCampaigns[0]['video']!);
+          }
         });
         _startTimer();
       }
@@ -321,6 +325,7 @@ class _LikeScreenState extends State<LikeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final pointsNotifier = ref.read(pointsProvider.notifier);
     return Stack(
       children: [
         _isInitializing
@@ -369,7 +374,10 @@ class _LikeScreenState extends State<LikeScreen> {
                                         _isInitializing ||
                                         _isTimerRunning)
                                     ? null
-                                    : () => _likeVideo(),
+                                    : () async {
+                                        await _likeVideo();
+                                        pointsNotifier.addPoints(240);
+                                      },
                                 text: "Like",
                               ),
                             ],

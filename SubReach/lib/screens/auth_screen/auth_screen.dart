@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import 'package:subreach/screens/home/home_screen.dart';
 import 'package:subreach/theme.dart';
-
-// final secureStorage = FlutterSecureStorage();
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -28,6 +25,7 @@ class AuthScreen extends StatelessWidget {
       );
 
       // Sign in to Firebase with the Google user credential
+      // ignore: unused_local_variable
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
 

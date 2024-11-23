@@ -1,87 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:subreach/screens/buy_points/buy_points.dart';
 import 'package:subreach/theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subreach/providers/points_provider.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key, required this.onSelectItem});
 
   final Function onSelectItem;
-
-  String? getCurrentUserEmail() {
-    return FirebaseAuth.instance.currentUser?.email;
-  }
 
   String? getUserEmail() {
     final User? user = FirebaseAuth.instance.currentUser;
     return user?.email; // Returns null if no user is signed in
   }
 
-  Future<String?> getUserId() async {
-    final userEmail = getUserEmail();
-    final url = Uri.parse(
-        'http://192.168.0.101:3000/api/users/create?email=$userEmail');
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print('userId');
-        print(data[0]['_id']);
-        return data[0]['_id'];
-      } else {
-        print('Failed to fetch user ID. Status code: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      print('Error fetching user ID: $e');
-      return null;
-    }
-  }
-
-  Future<int> fetchUserPoints() async {
-    final id = await getUserId();
-    print('User ID: $id');
-    if (id == null) {
-      print('User ID not found');
-      return 0;
-    }
-    final url = Uri.parse('http://192.168.0.101:3000/api/users/create?id=$id');
-
-    try {
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        // Parse the response body
-        final data = jsonDecode(response.body);
-        print(data['points']);
-        return data['points'] ?? 0; // Default to 0 if 'points' is not present
-      } else {
-        print(
-            'Failed to fetch user points. Status code: ${response.statusCode}');
-        return 0; // Return 0 or handle error as needed
-      }
-    } catch (e) {
-      print('Error fetching user points: $e');
-      return 0; // Return 0 or handle error as needed
-    }
-  }
-
   @override
-  Widget build(BuildContext context) {
-    final email = getCurrentUserEmail();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final myPoints = ref.watch(pointsProvider);
+    final pointsNotifier = ref.read(pointsProvider.notifier);
+    final email = getUserEmail();
 
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           FutureBuilder<int>(
-            future: email != null ? fetchUserPoints() : Future.value(0),
+            future: email != null
+                ? pointsNotifier.fetchUserPoints()
+                : Future.value(0),
             builder: (context, snapshot) {
-              final points = snapshot.data ?? 0;
+              final points = snapshot.data ?? myPoints;
 
               return DrawerHeader(
                 decoration: BoxDecoration(
