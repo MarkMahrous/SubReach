@@ -318,7 +318,7 @@ class _SubscribeScreenState extends ConsumerState<SubscribeScreen> {
             }),
           );
 
-          // Start the timer after liking the video
+          // Start the timer after Subscribing to the channel
           setState(() {
             _isGettingpoints = false;
             _isTimerRunning = true;
@@ -332,11 +332,39 @@ class _SubscribeScreenState extends ConsumerState<SubscribeScreen> {
           _startTimer();
         }
       }
-    } catch (e) {
-      print("Error subscribing to channel: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to subscribe to the channel.")),
-      );
+    } on Exception catch (e) {
+      // Check for the specific error message for already subscribed channels
+      if (e.toString().contains(
+          'The subscription that you are trying to create already exists.')) {
+        print("Already subscribed to the channel.");
+
+        final userId = await getUserId();
+        await http.patch(
+          Uri.parse('http://192.168.0.101:3000/api/users/create?id=$userId'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'points': 360,
+            'viewedCampaign': fetchedSubscribeCampaigns[_currentIndex]
+                ['campaignId'],
+          }),
+        );
+        setState(() {
+          _isGettingpoints = false;
+          _isTimerRunning = true;
+          _remainingTime = 25; // Reset timer to 25 seconds
+          fetchedSubscribeCampaigns.removeAt(_currentIndex);
+          if (fetchedSubscribeCampaigns.isNotEmpty) {
+            _initializeYoutubeController(
+                fetchedSubscribeCampaigns[0]['video']!);
+          }
+        });
+        _startTimer();
+      } else {
+        print("Error subscribing to channel: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to subscribe to the channel.")),
+        );
+      }
     }
   }
 
