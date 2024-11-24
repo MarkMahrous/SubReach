@@ -23,13 +23,18 @@ export default async function handler(
 
     const videos = await Video.find();
 
+    console.log("type", type);
+    console.log('users ', users);
     return res.status(200).json(
         compaigns
         .filter(campaign => campaign.type === type)
         .map(campaign => {
+            const owner = users.find(user => user._id.equals(campaign.owner));
+            console.log('owner', owner);
+            console.log('campaign owner ', campaign.owner);
             return {
                 ...campaign.toObject(),
-                owner: users.find(user => user._id.equals(campaign.owner)).toObject(),
+                owner: users.find(user => user._id.equals(campaign.owner))?.toObject() || {email: 'unknown'},
                 video: videos.find(video => video._id.equals(campaign.video)).toObject(),
                 numberOfViews: users.filter(user => user.viewedCampaigns.includes(campaign._id)).length
                 

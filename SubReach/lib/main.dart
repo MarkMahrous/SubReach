@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subreach/screens/splash/splash_screen.dart';
 
 void main() async {
+  Stripe.publishableKey =
+      'pk_test_51PIwOLRxDoUeGEPbTICgMrGX6SUbULLKiFdiEvKBQvtgqA1RW1tvKgCTBAzlA7KceVhJRDoXRGLzwLenH56eFthu00mM4vvut3'; // Set your publishable key here
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

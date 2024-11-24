@@ -118,54 +118,31 @@ const createDemoUsers = async () => {
 
 // Execute the functions to create demo data
 const createDemoData = async () => {
-  //distroy all table if exist
 
-  //update delete url attribute from video schema and add videoId attribute
-  // await Video.updateMany({}, { $unset: { url: 1 } });
-  // await Video.updateMany({}, { $set: { videoId: { type: String, required: true } } });
+   
 
-  //delete all videos
-  // await Video.deleteMany({});
-  // //delete all campaigns
-  // await Campaign.deleteMany({});
-  // //delete all users
-  // await User.deleteMany({});
-  console.log("All collections dropped!");
-  await dropAllCollections();
-  const videos = [
-    "HAw90AwUL_4",
-    "f0oy-NicIgE&t=20s",
-    "uA-h1CmScHQ&t=485s",
-    "fy8T9OwVt0Y&t=1160s",
-    "w65Sed9UzqU",
-    "FHrpR_GrKp0",
-    "gRfexxM4sDs",
-    "Ggb13qPD6KY",
-    "i0SHsI4y5CM",
-    "VZYyEhMhtqY",
-  ];
 
-  //   const users = await createDemoUsers();
-  //   const campaigns = await createDemoCampaigns(videos, users);
 
-  //   //create admin user
-  //   //remove admin user
-  //   // await User.deleteMany({email: 'admin@gmail.com'});
-  //   const admin = new User({
-  //     name: "Admin",
-  //     email: "admin@gmail.com",
-  //     password: "Admin123@",
-  //     points: 0,
-  //     viewedCampaigns: [],
-  //   });
-  //   await admin.save();
-  //   console.log("Admin user created!");
-  //   //get all users
-  //   // const users = await User.find();
-  //   console.log("All users:", users);
-  //   //get all videos
-  //   console.log("Demo data created successfully!");
-  //   mongoose.connection.close(); // Close the connection after data is inserted
+    const videos = await createDemoVideos();
+    const users = await createDemoUsers();
+    // const campaigns = await createDemoCampaigns(videos, users);
+
+ 
+    const admin = new User({
+        name: 'Admin',
+        email: 'admin@gmail.com',
+        password: 'Admin123@',
+        points: 0,
+        viewedCampaigns: [],
+    });
+    await admin.save();
+    console.log('Admin user created!');
+    //get all users
+    // const users = await User.find();
+    // console.log('All users:', users);
+    //get all videos
+    console.log('Demo data created successfully!');
+    mongoose.connection.close(); // Close the connection after data is inserted
 };
 
 // Start the demo data creation

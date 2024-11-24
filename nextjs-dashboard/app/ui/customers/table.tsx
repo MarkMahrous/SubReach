@@ -7,6 +7,9 @@ import {
   FormattedCustomersTable,
 } from '@/app/lib/definitions';
 import { useEffect, useState } from 'react';
+import { DeleteInvoice, UpdateInvoice } from '../invoices/buttons';
+import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 export default function CustomersTable({
   customers,
@@ -16,6 +19,16 @@ export default function CustomersTable({
   const [filteredCustomers, setFilteredCustomers] = useState<FormattedCustomersTable[]>(
     customers
   );
+  const deleteUser = async (userid: string) => {
+    const response = await fetch(`/api/users${userid}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await response.json();
+    return data;
+  };
 
   useEffect(() => {
     setFilteredCustomers(customers);
@@ -53,13 +66,26 @@ export default function CustomersTable({
                       <div>
                         <div className="mb-2 flex items-center">
                           <div className="flex items-center gap-3">
-
                             <p>{customer.name}</p>
                           </div>
                         </div>
                         <p className="text-sm text-gray-500">
                           {customer.email}
                         </p>
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <Link
+                          href="/dashboard/customers/sdfs"
+                          className="rounded-md border p-2 hover:bg-gray-100"
+                        >
+                          <PencilIcon className="w-5" />
+                        </Link>
+                        <>
+                          <button className="rounded-md border p-2 hover:bg-gray-100">
+                            <span className="sr-only">Delete</span>
+                            <TrashIcon className="w-5" />
+                          </button>
+                        </>
                       </div>
                     </div>
 
@@ -78,6 +104,7 @@ export default function CustomersTable({
                       <p className="text-xs">Total Spent</p>
                       <p className="font-medium">{customer.totalSpent} $</p>
                     </div>
+
                   </div>
                 ))}
               </div>

@@ -19,3 +19,6 @@ npm run dev
 
 admin@gmail.com
 Admin123@
+
+
+ipconfig getifaddr en0

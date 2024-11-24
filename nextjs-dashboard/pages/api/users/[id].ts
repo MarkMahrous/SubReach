@@ -1,6 +1,6 @@
 import { connectToDatabase } from '@/lib/mongoose';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {User} from '@/models/Models';
+import { User } from '@/models/Models';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { method } = req;
@@ -65,6 +65,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     console.error('Error fetching users:', error);
                     return res.status(500).json({ error: 'Failed to fetch users' });
                 }
+            }
+        case 'PATCH':
+            if (!id) {
+                return res.status(400).json({ error: 'Missing required field: id' });
+            }
+            try {
+                const user = await User.findById(id);
+                if (!user) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+                const { name, email, points } = req.body;
+                if (name) {
+                    user.name = name;
+                }
+                if (email) {
+                    user.email = email;
+                }
+                if (points) {
+                    user.points = points;
+                }
+                await user.save();
+                return res.status(200).json(user);
+            } catch (error) {
+                console.error('Error updating user:', error);
+                return res.status(500).json({ error: 'Failed to update user' });
             }
 
         default:

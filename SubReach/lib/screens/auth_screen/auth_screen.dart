@@ -36,7 +36,7 @@ class AuthScreen extends StatelessWidget {
 
       // Make a POST request to create the user
       final response = await http.post(
-        Uri.parse('http://192.168.0.101:3000/api/users/create'),
+        Uri.parse('http://192.168.232.231:3000/api/users/create'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'name': name,

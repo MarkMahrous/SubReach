@@ -48,6 +48,9 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   shared_preferences: ^2.3.3
   flutter_riverpod: ^2.6.1
+  flutter_stripe: ^11.3.0 # Adjust the version if needed
+  dio: ^5.7.0
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:

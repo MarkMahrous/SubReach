@@ -85,7 +85,7 @@ class _LikeScreenState extends ConsumerState<LikeScreen> {
   Future<String?> getUserId() async {
     final userEmail = getUserEmail();
     final url = Uri.parse(
-        'http://192.168.0.101:3000/api/users/create?email=$userEmail');
+        'http://192.168.232.231:3000/api/users/create?email=$userEmail');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -110,7 +110,7 @@ class _LikeScreenState extends ConsumerState<LikeScreen> {
       print('User ID not found');
       return [];
     }
-    final url = Uri.parse('http://192.168.0.101:3000/api/users/create?id=$id');
+    final url = Uri.parse('http://192.168.232.231:3000/api/users/create?id=$id');
 
     try {
       final response = await http.get(url);
@@ -136,7 +136,7 @@ class _LikeScreenState extends ConsumerState<LikeScreen> {
     final userId = await getUserId(); // Fetch the user ID
     final viewedCampaigns = await fetchUserViewedCampaigns();
     final url = Uri.parse(
-        'http://192.168.0.101:3000/api/campaigns/campaigns?type=Like');
+        'http://192.168.232.231:3000/api/campaigns/campaigns?type=Like');
 
     try {
       final response = await http.get(url);
@@ -290,7 +290,7 @@ class _LikeScreenState extends ConsumerState<LikeScreen> {
 
         final userId = await getUserId();
         await http.patch(
-          Uri.parse('http://192.168.0.101:3000/api/users/create?id=$userId'),
+          Uri.parse('http://192.168.232.231:3000/api/users/create?id=$userId'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'points': 240,
