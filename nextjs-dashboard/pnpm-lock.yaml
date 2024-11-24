@@ -81,6 +81,9 @@ importers:
       react-youtube:
         specifier: ^10.1.0
         version: 10.1.0(react@19.0.0-rc-cd22717c-20241013)
+      stripe:
+        specifier: ^17.4.0
+        version: 17.4.0
       tailwindcss:
         specifier: 3.4.4
         version: 3.4.4
@@ -1886,6 +1889,10 @@ packages:
   strip-ansi@7.1.0:
     resolution: {integrity: sha512-iq6eVVI64nQQTRYq2KtEg2d2uU7LElhTJwsH4YzIHZshxlgZms/wIc4VoDQTlG/IvVIrBKG06CrZnp0qv7hkcQ==}
     engines: {node: '>=12'}
+
+  stripe@17.4.0:
+    resolution: {integrity: sha512-sQQGZguPxe7/QYXJKtDpfzT2OAH9F8nyE2SOsVdTU793iiU33/dpaKgWaJEGJm8396Yy/6NvTLblgdHlueGLhA==}
+    engines: {node: '>=12.*'}
 
   strnum@1.0.5:
     resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
@@ -3996,6 +4003,11 @@ snapshots:
   strip-ansi@7.1.0:
     dependencies:
       ansi-regex: 6.1.0
+
+  stripe@17.4.0:
+    dependencies:
+      '@types/node': 20.14.8
+      qs: 6.13.0
 
   strnum@1.0.5:
     optional: true

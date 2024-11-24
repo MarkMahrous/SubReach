@@ -1,15 +1,15 @@
 plugins {
-    id "com.android.application"
+    id 'com.android.application'
     // START: FlutterFire Configuration
     id 'com.google.gms.google-services'
     // END: FlutterFire Configuration
-    id "kotlin-android"
+    id 'kotlin-android'
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id "dev.flutter.flutter-gradle-plugin"
+    id 'dev.flutter.flutter-gradle-plugin'
 }
 
 android {
-    namespace = "com.example.subreach"
+    namespace = 'com.example.subreach'
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.subreach"
+        applicationId = 'com.example.subreach'
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
@@ -42,6 +42,12 @@ android {
     }
 }
 
+dependencies {
+    implementation 'com.stripe:stripe-android:20.0.1'  // Stripe SDK Dependency
+// Add any other dependencies required by your project
+
+}
+
 flutter {
-    source = "../.."
+    source = '../..'
 }
