@@ -378,7 +378,7 @@ class _LikeScreenState extends ConsumerState<LikeScreen> {
                                         await _likeVideo();
                                         pointsNotifier.addPoints(240);
                                       },
-                                text: "Like",
+                                text: "LIKE (+240)",
                               ),
                             ],
                           ),
