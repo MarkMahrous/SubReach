@@ -13,7 +13,10 @@ class AppButton extends StatelessWidget {
       onPressed: action,
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColor.primary,
-        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
       ),
       child: Text(
         text,

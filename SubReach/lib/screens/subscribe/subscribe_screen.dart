@@ -413,26 +413,36 @@ class _SubscribeScreenState extends ConsumerState<SubscribeScreen> {
                               showVideoProgressIndicator: true,
                             ),
                           const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              AppButton(
-                                action: _isTimerRunning ? null : _playNextVideo,
-                                text: "Next Video",
-                              ),
-                              const SizedBox(width: 10),
-                              AppButton(
-                                action: (_youtubeApi == null ||
-                                        _isInitializing ||
-                                        _isTimerRunning)
-                                    ? null
-                                    : () async {
-                                        await _subscribeToChannel();
-                                        pointsNotifier.addPoints(360);
-                                      },
-                                text: "SUBSCRIBE (+360)",
-                              ),
-                            ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: AppButton(
+                                    action:
+                                        _isTimerRunning ? null : _playNextVideo,
+                                    text: "Next Video",
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: AppButton(
+                                    action: (_youtubeApi == null ||
+                                            _isInitializing ||
+                                            _isTimerRunning)
+                                        ? null
+                                        : () async {
+                                            await _subscribeToChannel();
+                                            pointsNotifier.addPoints(360);
+                                          },
+                                    text: "SUBSCRIBE (+360)",
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 20),
                           Card(

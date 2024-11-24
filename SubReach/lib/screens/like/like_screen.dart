@@ -361,26 +361,34 @@ class _LikeScreenState extends ConsumerState<LikeScreen> {
                               showVideoProgressIndicator: true,
                             ),
                           const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              AppButton(
-                                action: _isTimerRunning ? null : _playNextVideo,
-                                text: "Next Video",
-                              ),
-                              const SizedBox(width: 10),
-                              AppButton(
-                                action: (_youtubeApi == null ||
-                                        _isInitializing ||
-                                        _isTimerRunning)
-                                    ? null
-                                    : () async {
-                                        await _likeVideo();
-                                        pointsNotifier.addPoints(240);
-                                      },
-                                text: "LIKE (+240)",
-                              ),
-                            ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: AppButton(
+                                    action:
+                                        _isTimerRunning ? null : _playNextVideo,
+                                    text: "Next Video",
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: AppButton(
+                                    action: (_youtubeApi == null ||
+                                            _isInitializing ||
+                                            _isTimerRunning)
+                                        ? null
+                                        : () async {
+                                            await _likeVideo();
+                                            pointsNotifier.addPoints(240);
+                                          },
+                                    text: "LIKE (+240)",
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 20),
                           Card(
