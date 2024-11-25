@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:subreach/theme.dart';
 
 class OptionCard extends StatelessWidget {
   final String points;
