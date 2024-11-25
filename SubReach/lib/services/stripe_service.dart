@@ -15,6 +15,7 @@ class StripeService {
       //STEP 1: Create a payment intent
       // paymentIntent = await createPaymentIntent(amount, 'usd');
       data = await _createPaymentIntent(amount);
+      print('Payment intent: ${data!['client_secret']}');
       print(data?['client_secret']);
       Stripe.publishableKey =
           'pk_test_51PIwOLRxDoUeGEPbTICgMrGX6SUbULLKiFdiEvKBQvtgqA1RW1tvKgCTBAzlA7KceVhJRDoXRGLzwLenH56eFthu00mM4vvut3'; // Set your publishable key here
