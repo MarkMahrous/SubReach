@@ -16,7 +16,7 @@ class PointsNotifier extends StateNotifier<int> {
   Future<String?> getUserId() async {
     final userEmail = getUserEmail();
     final url = Uri.parse(
-        'http://192.168.232.231:3000/api/users/create?email=$userEmail');
+        'http://192.168.0.101:3000/api/users/create?email=$userEmail');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -39,7 +39,7 @@ class PointsNotifier extends StateNotifier<int> {
     final id = await getUserId(); // Replace with your logic to get user ID
     if (id == null) return 0;
 
-    final url = Uri.parse('http://192.168.232.231:3000/api/users/create?id=$id');
+    final url = Uri.parse('http://192.168.0.101:3000/api/users/create?id=$id');
 
     try {
       final response = await http.get(url);

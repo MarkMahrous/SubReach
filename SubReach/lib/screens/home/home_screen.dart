@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchVideoUrls() async {
-    final url = Uri.parse('http://192.168.232.231:3000/api/videos/uploaded');
+    final url = Uri.parse('http://192.168.0.101:3000/api/videos/uploaded');
 
     try {
       final response = await http.get(url);

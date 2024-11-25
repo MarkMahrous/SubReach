@@ -20,6 +20,7 @@ export const Video =
 interface ICampaign extends Document {
   name: string;
   budget: number;
+  time: number;
   owner: string;
   type: "Subscribe" | "Like" | "View";
   video: string; // Video ID
@@ -28,6 +29,7 @@ interface ICampaign extends Document {
 const CampaignSchema: Schema = new Schema({
   name: { type: String, required: true },
   budget: { type: Number, required: true },
+  time: { type: Number, default: 0 },
   owner: { type: Schema.Types.ObjectId, ref: "User" },
   type: {
     type: String,

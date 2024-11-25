@@ -8,6 +8,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { method } = req;
+  const { id } = req.query;
 
   await connectToDatabase();
 
@@ -26,21 +27,31 @@ export default async function handler(
       }
 
     case "POST":
-      const { name, budget, owner, type, video } = req.body;
+      const { name, budget, owner, type, video, time } = req.body;
 
       if (!name || !budget || !owner || !type || !video) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
       try {
-        // make sure the owner exists
+        // Ensure the owner exists
         const user = await User.findById(owner);
         if (!user) {
           return res.status(404).json({ error: "Owner not found" });
         }
 
+        // Use the provided time or default to 0
+        const campaignTime = time ?? 0;
+
         // Create the new campaign
-        const campaign = new Campaign({ name, budget, owner, type, video });
+        const campaign = new Campaign({
+          name,
+          budget,
+          owner,
+          type,
+          video,
+          time: campaignTime,
+        });
         await campaign.save();
 
         // Update the user's points and createdCampaigns
@@ -52,6 +63,25 @@ export default async function handler(
       } catch (error) {
         console.error("Error creating campaign:", error);
         return res.status(500).json({ error: "Failed to create campaign" });
+      }
+
+    case "DELETE":
+      // Existing DELETE logic for removing a user
+      if (!id) {
+        return res.status(400).json({ error: "Missing required field: id" });
+      }
+
+      try {
+        const result = await Campaign.deleteOne({ _id: id });
+        if (result.deletedCount === 0) {
+          return res.status(404).json({ error: "Campaign not found" });
+        }
+        return res
+          .status(200)
+          .json({ message: "Campaign removed successfully" });
+      } catch (error) {
+        console.error("Error removing Campaign:", error);
+        return res.status(500).json({ error: "Failed to remove Campaign" });
       }
 
     default:

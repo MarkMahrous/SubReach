@@ -8,7 +8,7 @@ class StripeService {
   static final StripeService instance = StripeService._();
   Map<String, dynamic>? data;
   String _baseUrl =
-      "http://192.168.232.231:3000/api"; // Replace with your server URL
+      "http://192.168.0.101:3000/api"; // Replace with your server URL
 
   Future<void> makePayment(context, amount) async {
     try {
@@ -33,7 +33,7 @@ class StripeService {
 
           // Extra params
           primaryButtonLabel: 'Pay now',
-         
+
           googlePay: PaymentSheetGooglePay(
             merchantCountryCode: 'DE',
             testEnv: true,
@@ -92,26 +92,26 @@ class StripeService {
     print("Displaying payment sheet");
     try {
       var value = await Stripe.instance.presentPaymentSheet();
-        // .then((value) {
-        print('Payment sheet displayed' + value.toString());
-        showDialog(
-            context: context,
-            builder: (_) => const AlertDialog(
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 100.0,
-                      ),
-                      SizedBox(height: 10.0),
-                      Text("Payment Successful!"),
-                    ],
-                  ),
-                ));
+      // .then((value) {
+      print('Payment sheet displayed' + value.toString());
+      showDialog(
+          context: context,
+          builder: (_) => const AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 100.0,
+                    ),
+                    SizedBox(height: 10.0),
+                    Text("Payment Successful!"),
+                  ],
+                ),
+              ));
 
-        data = null;
+      data = null;
       // }).onError((error, stackTrace) {
       //   throw Exception(error);
       // });
@@ -133,7 +133,7 @@ class StripeService {
           ],
         ),
       );
-    } catch (e) { 
+    } catch (e) {
       print('Error is:---> $e');
       print('$e');
     }
