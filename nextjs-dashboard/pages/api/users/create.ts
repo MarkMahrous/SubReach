@@ -84,7 +84,7 @@ export default async function handler(
       // Existing GET logic for fetching users
       if (id) {
         try {
-          const user = await User.findById(id);
+          const user = await User.findById(id).populate("createdCampaigns");
           if (!user) {
             return res.status(404).json({ error: "User not found" });
           }
