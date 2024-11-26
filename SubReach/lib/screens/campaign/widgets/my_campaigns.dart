@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:subreach/theme.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MyCampaigns extends StatefulWidget {
   const MyCampaigns({super.key});
@@ -9,26 +13,37 @@ class MyCampaigns extends StatefulWidget {
 }
 
 class _MyCampaignsState extends State<MyCampaigns> {
-  final myCampaigns = [
-    {
-      "time": 45,
-      "amount": 20,
-      "type": "View",
-      "video": "IpkrifR88PU",
-    },
-    {
-      "time": 45,
-      "amount": 10,
-      "type": "View",
-      "video": "SPS7mxaMgwU",
-    },
-    {
-      "time": 0,
-      "amount": 10,
-      "type": "Like",
-      "video": "SPS7mxaMgwU",
+  List<Map<String, Object>> myCampaigns = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  String? getUserEmail() {
+    final User? user = FirebaseAuth.instance.currentUser;
+    return user?.email;
+  }
+
+  Future<List<Map<String, Object>>?> getUserCreatedCampaigns() async {
+    final userEmail = getUserEmail();
+    final url = Uri.parse(
+        'http://192.168.0.101:3000/api/users/create?email=$userEmail');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('userId');
+        return data[0]['createdCampaigns'];
+      } else {
+        print('Failed to fetch user ID. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching user ID: $e');
+      return null;
     }
-  ];
+  }
 
   String getThumbnailUrl(String videoId) {
     return "https://img.youtube.com/vi/$videoId/0.jpg"; // URL for YouTube video thumbnail
@@ -50,40 +65,59 @@ class _MyCampaignsState extends State<MyCampaigns> {
                   return Card(
                     color: AppColor.white,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(10.0),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Image.network(
                             thumbnailUrl,
                             width: 100,
-                            height: 70,
+                            height: 65,
                             fit: BoxFit.cover,
                           ),
                           const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Video Id: ${campaign["video"]}"),
-                              Row(
-                                children: [
-                                  Text(
-                                    "0/${campaign["amount"]} ${campaign["type"]}",
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Video Id: ${campaign["video"]}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                      child: Row(
-                                    children: [
-                                      const Icon(Icons.timer),
-                                      Text("${campaign["time"]}s"),
-                                    ],
-                                  )),
-                                ],
-                              )
-                            ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "0/${campaign["amount"]} ${campaign["type"]}s",
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 15),
+                                    campaign["type"] == "View"
+                                        ? Row(
+                                            children: [
+                                              const Icon(Icons.timer,
+                                                  size: 18, color: Colors.grey),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                "${campaign["time"]}s",
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : const SizedBox(),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),

@@ -7,7 +7,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { method } = req;
-  const { id } = req.query;
+  const { id, email } = req.query;
 
   await connectToDatabase();
 
@@ -97,7 +97,10 @@ export default async function handler(
         const { email } = req.query;
         const filter = email ? { email } : {};
         try {
-          const users = await User.find(filter);
+          const users =
+            email == null
+              ? await User.find(filter)
+              : await User.find(filter).populate("createdCampaigns");
           return res.status(200).json(users);
         } catch (error) {
           console.error("Error fetching users:", error);
