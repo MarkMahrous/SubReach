@@ -479,7 +479,7 @@ class _SubscribeScreenState extends ConsumerState<SubscribeScreen> {
                                   ),
                                   const SizedBox(height: 10),
                                   const Text(
-                                    "Subscribe to YouTube channels.",
+                                    "Subscribe to your favorite channel & get bonus, DO NOT unsubscribe or cancel like, We will block your account if you unsubscribe any channel.",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(fontSize: 16),
                                   ),

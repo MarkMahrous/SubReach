@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:subreach/theme.dart';
 
 class OptionVip extends StatelessWidget {
-  const OptionVip({super.key, required this.month, required this.price});
+  const OptionVip(
+      {super.key,
+      required this.month,
+      required this.price,
+      required this.onPressed});
 
   final String month;
   final String price;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: onPressed,
       child: Card(
         color: AppColor.white,
         margin: const EdgeInsets.only(bottom: 10),

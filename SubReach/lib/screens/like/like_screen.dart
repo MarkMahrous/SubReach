@@ -425,7 +425,7 @@ class _LikeScreenState extends ConsumerState<LikeScreen> {
                                   ),
                                   const SizedBox(height: 10),
                                   const Text(
-                                    "Like to YouTube videos.",
+                                    "Like to your favorite Video & get bonus, DO NOT cancel like, We will block your account if you cancel like on any Video.",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(fontSize: 16),
                                   ),

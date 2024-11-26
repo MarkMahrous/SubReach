@@ -13,11 +13,12 @@ class MyCampaigns extends StatefulWidget {
 }
 
 class _MyCampaignsState extends State<MyCampaigns> {
-  List<Map<String, Object>> myCampaigns = [];
+  late Future<List<Map<String, Object>>?> campaignsFuture;
 
   @override
   void initState() {
     super.initState();
+    campaignsFuture = getUserCreatedCampaigns();
   }
 
   String? getUserEmail() {
@@ -33,14 +34,15 @@ class _MyCampaignsState extends State<MyCampaigns> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('userId');
-        return data[0]['createdCampaigns'];
+        return (data[0]['createdCampaigns'] as List)
+            .map((campaign) => Map<String, Object>.from(campaign))
+            .toList();
       } else {
-        print('Failed to fetch user ID. Status code: ${response.statusCode}');
+        print('Failed to fetch campaigns. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Error fetching user ID: $e');
+      print('Error fetching campaigns: $e');
       return null;
     }
   }
@@ -54,9 +56,24 @@ class _MyCampaignsState extends State<MyCampaigns> {
     return Scaffold(
       body: Container(
         color: AppColor.white,
-        child: myCampaigns.isEmpty
-            ? noCampaigns()
-            : ListView.builder(
+        child: FutureBuilder<List<Map<String, Object>>?>(
+          future: campaignsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  "Error loading campaigns. Please try again later.",
+                  style: const TextStyle(fontSize: 18, color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              );
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return noCampaigns();
+            } else {
+              final myCampaigns = snapshot.data!;
+              return ListView.builder(
                 itemCount: myCampaigns.length,
                 itemBuilder: (context, index) {
                   final campaign = myCampaigns[index];
@@ -98,22 +115,21 @@ class _MyCampaignsState extends State<MyCampaigns> {
                                       ),
                                     ),
                                     const SizedBox(width: 15),
-                                    campaign["type"] == "View"
-                                        ? Row(
-                                            children: [
-                                              const Icon(Icons.timer,
-                                                  size: 18, color: Colors.grey),
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                "${campaign["time"]}s",
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        : const SizedBox(),
+                                    if (campaign["type"] == "View")
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.timer,
+                                              size: 18, color: Colors.grey),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            "${campaign["time"]}s",
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                   ],
                                 ),
                               ],
@@ -124,13 +140,16 @@ class _MyCampaignsState extends State<MyCampaigns> {
                     ),
                   );
                 },
-              ),
+              );
+            }
+          },
+        ),
       ),
     );
   }
 
   Widget noCampaigns() {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,

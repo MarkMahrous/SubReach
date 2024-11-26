@@ -43,8 +43,8 @@ class StripeService {
           style: ThemeMode.dark,
           appearance: PaymentSheetAppearance(
             colors: PaymentSheetAppearanceColors(
-              background: Colors.lightBlue,
-              primary: Colors.blue,
+              background: const Color.fromARGB(255, 255, 255, 255),
+              primary: const Color.fromARGB(255, 255, 255, 255),
               componentBorder: Colors.red,
             ),
             shapes: PaymentSheetShape(

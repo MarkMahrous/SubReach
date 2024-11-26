@@ -32,9 +32,12 @@ class FeatureCard extends StatelessWidget {
                   child: Image.asset(image),
                 ),
               ),
-              AppButton(
-                action: action,
-                text: text,
+              Container(
+                width: 200,
+                child: AppButton(
+                  action: action,
+                  text: text,
+                ),
               ),
               const SizedBox(height: 8),
             ],
