@@ -309,7 +309,6 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final pointsNotifier = ref.read(pointsProvider.notifier);
     return Scaffold(
       body: _isInitializing
           ? Center(child: CircularProgressIndicator())

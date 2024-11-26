@@ -21,6 +21,7 @@ interface ICampaign extends Document {
   name: string;
   budget: number;
   time: number;
+  amount: number;
   owner: string;
   type: "Subscribe" | "Like" | "View";
   video: string; // Video ID
@@ -30,6 +31,7 @@ const CampaignSchema: Schema = new Schema({
   name: { type: String, required: true },
   budget: { type: Number, required: true },
   time: { type: Number, default: 0 },
+  amount: { type: Number, default: 0 },
   owner: { type: Schema.Types.ObjectId, ref: "User" },
   type: {
     type: String,

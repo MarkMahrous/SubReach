@@ -27,7 +27,7 @@ export default async function handler(
       }
 
     case "POST":
-      const { name, budget, owner, type, video, time } = req.body;
+      const { name, budget, owner, type, video, time, amount } = req.body;
 
       if (!name || !budget || !owner || !type || !video) {
         return res.status(400).json({ error: "Missing required fields" });
@@ -42,6 +42,7 @@ export default async function handler(
 
         // Use the provided time or default to 0
         const campaignTime = time ?? 0;
+        const campaignAmount = amount ?? 0;
 
         // Create the new campaign
         const campaign = new Campaign({
@@ -51,6 +52,7 @@ export default async function handler(
           type,
           video,
           time: campaignTime,
+          amount: campaignAmount,
         });
         await campaign.save();
 

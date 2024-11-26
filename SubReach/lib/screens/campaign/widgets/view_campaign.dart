@@ -1,17 +1,25 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subreach/providers/points_provider.dart';
 import 'package:subreach/theme.dart';
+import 'package:http/http.dart' as http;
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class ViewCampaign extends StatefulWidget {
+class ViewCampaign extends ConsumerStatefulWidget {
   final String url;
+  final VoidCallback onBackToMyCampaigns;
 
-  const ViewCampaign({super.key, required this.url});
+  const ViewCampaign(
+      {super.key, required this.url, required this.onBackToMyCampaigns});
 
   @override
-  State<ViewCampaign> createState() => _ViewCampaignState();
+  ConsumerState<ViewCampaign> createState() => _ViewCampaignState();
 }
 
-class _ViewCampaignState extends State<ViewCampaign> {
+class _ViewCampaignState extends ConsumerState<ViewCampaign> {
   late YoutubePlayerController _controller;
   final TextEditingController _viewsController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
@@ -19,27 +27,49 @@ class _ViewCampaignState extends State<ViewCampaign> {
   String viewsError = 'Invalid Number!';
   String timeError = 'Invalid Time!';
   int totalPoints = 0;
+  String? videoId = '';
+  int? userPoints;
 
   @override
   void initState() {
     super.initState();
     // Extract YouTube video ID from the URL
-    final videoId = YoutubePlayer.convertUrlToId(widget.url);
+    videoId = YoutubePlayer.convertUrlToId(widget.url);
     _controller = YoutubePlayerController(
       initialVideoId: videoId ?? '',
       flags: const YoutubePlayerFlags(
-        autoPlay: false,
+        autoPlay: true,
         mute: false,
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    _viewsController.dispose();
-    _timeController.dispose();
-    super.dispose();
+  String? getUserEmail() {
+    final User? user = FirebaseAuth.instance.currentUser;
+    return user?.email;
+  }
+
+  Future<String?> getUserId() async {
+    final userEmail = getUserEmail();
+    final url = Uri.parse(
+        'http://192.168.0.101:3000/api/users/create?email=$userEmail');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('userId');
+        print(data[0]['_id']);
+        print(data[0]['points']);
+        userPoints = data[0]['points'];
+        return data[0]['_id'];
+      } else {
+        print('Failed to fetch user ID. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching user ID: $e');
+      return null;
+    }
   }
 
   void validate() {
@@ -70,9 +100,77 @@ class _ViewCampaignState extends State<ViewCampaign> {
     });
   }
 
-  void submit() {
-    // Submit the campaign to the server
-    // ...
+  void submit() async {
+    validate();
+    getUserEmail();
+    await getUserId();
+    if (userPoints == null) {
+      return;
+    }
+    if (!viewsError.isEmpty ||
+        !timeError.isEmpty ||
+        userPoints! < totalPoints) {
+      return;
+    }
+    final response = await createCampaign();
+    if (response.isNotEmpty) {
+      print('Campaign created successfully!');
+      final pointsNotifier = ref.read(pointsProvider.notifier);
+      pointsNotifier.addPoints(totalPoints * -1);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Campaign created successfully!'),
+        ),
+      );
+      widget.onBackToMyCampaigns();
+    } else {
+      print('Failed to create campaign.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to create campaign.'),
+        ),
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> createCampaign() async {
+    final userId = await getUserId();
+    try {
+      final views = int.tryParse(_viewsController.text);
+      final time = int.tryParse(_timeController.text);
+      final response = await http.post(
+        Uri.parse('http://192.168.0.101:3000/api/campaigns/campaigns'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "name": "View Campaign $userId $videoId",
+          "budget": totalPoints,
+          "owner": userId,
+          "type": "View",
+          "video": videoId,
+          "time": time,
+          "amount": views
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        print('Campaign created successfully!');
+        return jsonDecode(response.body);
+      } else {
+        print('Failed to create campaign: ${response.body}');
+        return {};
+      }
+    } catch (error) {
+      print("Error during campaign creation: $error");
+      return {};
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _viewsController.dispose();
+    _timeController.dispose();
+    super.dispose();
   }
 
   @override

@@ -1,32 +1,42 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subreach/providers/points_provider.dart';
 import 'package:subreach/theme.dart';
+import 'package:http/http.dart' as http;
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class SubscribeCampaign extends StatefulWidget {
+class SubscribeCampaign extends ConsumerStatefulWidget {
   final String url;
+  final VoidCallback onBackToMyCampaigns;
 
-  const SubscribeCampaign({super.key, required this.url});
+  const SubscribeCampaign(
+      {super.key, required this.url, required this.onBackToMyCampaigns});
 
   @override
-  State<SubscribeCampaign> createState() => _SubscribeCampaignState();
+  ConsumerState<SubscribeCampaign> createState() => _SubscribeCampaignState();
 }
 
-class _SubscribeCampaignState extends State<SubscribeCampaign> {
+class _SubscribeCampaignState extends ConsumerState<SubscribeCampaign> {
   late YoutubePlayerController _controller;
   final TextEditingController subscribesController = TextEditingController();
 
   String subscribesError = 'Invalid Number!';
   int totalPoints = 0;
+  String? videoId = '';
+  int? userPoints;
 
   @override
   void initState() {
     super.initState();
     // Extract YouTube video ID from the URL
-    final videoId = YoutubePlayer.convertUrlToId(widget.url);
+    videoId = YoutubePlayer.convertUrlToId(widget.url);
     _controller = YoutubePlayerController(
       initialVideoId: videoId ?? '',
       flags: const YoutubePlayerFlags(
-        autoPlay: false,
+        autoPlay: true,
         mute: false,
       ),
     );
@@ -37,6 +47,34 @@ class _SubscribeCampaignState extends State<SubscribeCampaign> {
     _controller.dispose();
     subscribesController.dispose();
     super.dispose();
+  }
+
+  String? getUserEmail() {
+    final User? user = FirebaseAuth.instance.currentUser;
+    return user?.email;
+  }
+
+  Future<String?> getUserId() async {
+    final userEmail = getUserEmail();
+    final url = Uri.parse(
+        'http://192.168.0.101:3000/api/users/create?email=$userEmail');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('userId');
+        print(data[0]['_id']);
+        print(data[0]['points']);
+        userPoints = data[0]['points'];
+        return data[0]['_id'];
+      } else {
+        print('Failed to fetch user ID. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching user ID: $e');
+      return null;
+    }
   }
 
   void validate() {
@@ -57,9 +95,66 @@ class _SubscribeCampaignState extends State<SubscribeCampaign> {
     });
   }
 
-  void submit() {
-    // Submit the campaign to the server
-    // ...
+  void submit() async {
+    validate();
+    getUserEmail();
+    await getUserId();
+    if (userPoints == null) {
+      return;
+    }
+    if (!subscribesError.isEmpty || userPoints! < totalPoints) {
+      return;
+    }
+    final response = await createCampaign();
+    if (response.isNotEmpty) {
+      print('Campaign created successfully!');
+      final pointsNotifier = ref.read(pointsProvider.notifier);
+      pointsNotifier.addPoints(totalPoints * -1);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Campaign created successfully!'),
+        ),
+      );
+      widget.onBackToMyCampaigns();
+    } else {
+      print('Failed to create campaign.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to create campaign.'),
+        ),
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> createCampaign() async {
+    final userId = await getUserId();
+    try {
+      final subscribers = int.tryParse(subscribesController.text);
+      final response = await http.post(
+        Uri.parse('http://192.168.0.101:3000/api/campaigns/campaigns'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "name": "View Campaign $userId $videoId",
+          "budget": totalPoints,
+          "owner": userId,
+          "type": "Subscribe",
+          "video": videoId,
+          "time": 0,
+          "amount": subscribers,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        print('Campaign created successfully!');
+        return jsonDecode(response.body);
+      } else {
+        print('Failed to create campaign: ${response.body}');
+        return {};
+      }
+    } catch (error) {
+      print("Error during campaign creation: $error");
+      return {};
+    }
   }
 
   @override

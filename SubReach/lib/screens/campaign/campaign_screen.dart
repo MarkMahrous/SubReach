@@ -55,11 +55,14 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   () {
                     url = _urlController.text;
                     if (body == "View") {
-                      activeWidget = ViewCampaign(url: url);
+                      activeWidget = ViewCampaign(
+                          url: url, onBackToMyCampaigns: switchToMyCampaigns);
                     } else if (body == "Subscribe") {
-                      activeWidget = SubscribeCampaign(url: url);
+                      activeWidget = SubscribeCampaign(
+                          url: url, onBackToMyCampaigns: switchToMyCampaigns);
                     } else {
-                      activeWidget = LikeCampaign(url: url);
+                      activeWidget = LikeCampaign(
+                          url: url, onBackToMyCampaigns: switchToMyCampaigns);
                     }
                     activeBody = body;
                   },
@@ -72,6 +75,13 @@ class _CampaignScreenState extends State<CampaignScreen> {
         );
       },
     );
+  }
+
+  void switchToMyCampaigns() {
+    setState(() {
+      activeWidget = MyCampaigns();
+      activeBody = "MyCampaigns";
+    });
   }
 
   @override
