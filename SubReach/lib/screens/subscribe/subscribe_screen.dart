@@ -45,7 +45,7 @@ class _SubscribeScreenState extends ConsumerState<SubscribeScreen> {
 
   Future<void> _loadTimerState() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedTime = prefs.getInt('remainingTime');
+    final savedTime = prefs.getInt('remainingTimeSub');
     if (savedTime != null && savedTime > 0) {
       setState(() {
         _remainingTime = savedTime;
@@ -57,7 +57,7 @@ class _SubscribeScreenState extends ConsumerState<SubscribeScreen> {
 
   Future<void> _saveTimerState(int time) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('remainingTime', time);
+    await prefs.setInt('remainingTimeSub', time);
   }
 
   void _startTimer() {

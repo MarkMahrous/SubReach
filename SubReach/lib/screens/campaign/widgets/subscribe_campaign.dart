@@ -27,6 +27,7 @@ class _SubscribeCampaignState extends ConsumerState<SubscribeCampaign> {
   int totalPoints = 0;
   String? videoId = '';
   int? userPoints;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -96,6 +97,7 @@ class _SubscribeCampaignState extends ConsumerState<SubscribeCampaign> {
   }
 
   void submit() async {
+    isLoading = true;
     validate();
     getUserEmail();
     await getUserId();
@@ -230,23 +232,31 @@ class _SubscribeCampaignState extends ConsumerState<SubscribeCampaign> {
         const SizedBox(height: 20),
 
         // "Create Campaign" Button
-        ElevatedButton(
-          onPressed: submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColor.primary,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(0),
-            ),
-          ),
-          child: const Text(
-            'Create Campaign',
-            style: TextStyle(
-              fontSize: 18,
-              color: AppColor.white,
-            ),
-          ),
-        ),
+        isLoading
+            ? const Center(
+                child: SizedBox(
+                  width: 40, // Set the width
+                  height: 40, // Set the height
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : ElevatedButton(
+                onPressed: submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0),
+                  ),
+                ),
+                child: const Text(
+                  'Create Campaign',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: AppColor.white,
+                  ),
+                ),
+              ),
       ],
     );
   }
